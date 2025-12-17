@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/hirochachacha/go-smb2"
 	"github.com/spf13/cobra"
@@ -160,13 +161,20 @@ Targets can be:
 		var targetWG sync.WaitGroup
 		targetSem := make(chan struct{}, concurrentHosts)
 
+		var completedTargets int32
+		totalTargets := len(finalTargets)
+
 		for _, target := range finalTargets {
 			targetWG.Add(1)
 			targetSem <- struct{}{}
 
 			go func(tgt string) {
 				defer targetWG.Done()
-				defer func() { <-targetSem }()
+				defer func() {
+					<-targetSem
+					curr := atomic.AddInt32(&completedTargets, 1)
+					utils.LogInfo("Progress: Hosts [%d/%d] - Finished %s", curr, totalTargets, tgt)
+				}()
 
 				// Check if local
 				if _, err := os.Stat(tgt); err == nil {
