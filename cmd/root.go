@@ -40,7 +40,6 @@ var (
 	lootDir         string
 	noDownload      bool
 	structuredLoot  bool
-	orLogic         bool
 	verbose         bool
 	noPass          bool
 )
@@ -93,7 +92,7 @@ based on filenames, extensions, and content.`,
 			Extensions: extensions,
 			Content:    content,
 			Dirnames:   dirnames,
-			OrLogic:    orLogic,
+			OrLogic:    true,
 		}
 		matchEngine, err := matcher.NewMatcher(mConfig)
 		if err != nil {
@@ -243,6 +242,5 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&lootDir, "loot-dir", "l", ".spuderman/loot", "Loot directory")
 	rootCmd.PersistentFlags().BoolVarP(&structuredLoot, "structured", "S", false, "Use structured loot directory (Host/Share/File)")
 	rootCmd.PersistentFlags().BoolVarP(&noDownload, "no-download", "n", false, "Don't download matching files")
-	rootCmd.PersistentFlags().BoolVarP(&orLogic, "or-logic", "o", false, "Use OR logic instead of AND")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Show debugging messages")
 }

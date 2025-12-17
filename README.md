@@ -1,6 +1,6 @@
 # Spuderman 🕷️🥔
 
-Spuderman is a Go port of MANSPIDER. It spiders SMB shares (and local paths) to find sensitive files based on filenames, extensions, and content.
+Spuderman spiders SMB shares (and local paths) to find sensitive files based on filenames, extensions, and content.
 
 ## Installation
 
