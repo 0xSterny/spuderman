@@ -34,7 +34,12 @@ Basic usage:
 ./spuderman [flags] [targets]
 ```
 
-Spuderman can spider specific hosts or IP ranges. If no targets are provided, it will display the help menu.
+Spuderman can spider specific hosts, CIDR ranges, or targets from a file.
+
+**Targets supported:**
+- Single IP/Hostname: `192.168.1.1`
+- CIDR Range: `192.168.1.0/24`
+- File of Targets: `targets.txt` (One target per line)
 
 ### Examples
 

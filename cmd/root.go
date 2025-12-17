@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
-	"os" // Added
+	"net"
+	"os"
 	"strings"
 	"sync"
 
@@ -49,7 +51,13 @@ var rootCmd = &cobra.Command{
 	Short: "Spuderman: Spider entire networks for juicy files on SMB shares",
 	Long: `Spuderman is a Go port of MANSPIDER. 
 It spiders SMB shares (and local paths) to find sensitive files 
-based on filenames, extensions, and content.`,
+based on filenames, extensions, and content.
+
+Targets can be:
+- Single IP or Hostname (e.g. 192.168.1.1)
+- CIDR Range (e.g. 192.168.1.0/24)
+- File containing targets (one per line)
+- Local Directory`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			cmd.Help()
@@ -69,10 +77,6 @@ based on filenames, extensions, and content.`,
 			utils.LogInfo("Analyze mode enabled: Disabling downloads, enabling verbose")
 			noDownload = true
 			verbose = true
-			// Ensure Debug env is set if verbose is checked in utils package?
-			// The utils.Debug function checks env "DEBUG".
-			// We should probably set it if verbose is on, OR update utils to check a var.
-			// Current utils.LogDebug checks os.Getenv("DEBUG").
 			os.Setenv("DEBUG", "true")
 		}
 
@@ -110,10 +114,53 @@ based on filenames, extensions, and content.`,
 		}
 
 		// 3. Process Targets
+		var finalTargets []string
+
+		for _, arg := range args {
+			// A. Try CIDR
+			_, ipnet, err := net.ParseCIDR(arg)
+			if err == nil {
+				// Expand CIDR
+				utils.LogInfo("Expanding CIDR: %s", arg)
+				for ip := ipnet.IP.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
+					// Skip network and broadcast? Usually safe to check all.
+					// Simplification: Check all.
+					finalTargets = append(finalTargets, ip.String())
+				}
+				continue
+			}
+
+			// B. Check File (that is not a directory)
+			fi, err := os.Stat(arg)
+			if err == nil && !fi.IsDir() {
+				// Check if we should ignore and treat as local scan?
+				// User wants "file of IPs".
+				utils.LogInfo("Reading targets from file: %s", arg)
+				file, err := os.Open(arg)
+				if err != nil {
+					utils.LogError("Failed to open target file %s: %v", arg, err)
+					continue
+				}
+				scanner := bufio.NewScanner(file)
+				for scanner.Scan() {
+					t := strings.TrimSpace(scanner.Text())
+					if t != "" {
+						finalTargets = append(finalTargets, t)
+					}
+				}
+				file.Close()
+				continue
+			}
+
+			// C. Default (Single Host or Local Dir)
+			finalTargets = append(finalTargets, arg)
+		}
+		utils.LogInfo("Total targets processed: %d", len(finalTargets))
+
 		var targetWG sync.WaitGroup
 		targetSem := make(chan struct{}, concurrentHosts)
 
-		for _, target := range args {
+		for _, target := range finalTargets {
 			targetWG.Add(1)
 			targetSem <- struct{}{}
 
@@ -243,4 +290,13 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&structuredLoot, "structured", "S", false, "Use structured loot directory (Host/Share/File)")
 	rootCmd.PersistentFlags().BoolVarP(&noDownload, "no-download", "n", false, "Don't download matching files")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Show debugging messages")
+}
+
+func inc(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
+		}
+	}
 }
