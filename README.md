@@ -5,7 +5,7 @@ Spuderman spiders SMB shares (and local paths) to find sensitive files based on 
 ## Installation
 
 ### Binary (Recommended)
-Download the latest binary for your operating system from the [Releases](https://github.com/your-username/spuderman/releases) page.
+Download the latest binary for your operating system from the [Releases](https://github.com/0xSterny/spuderman/releases) page.
 - **Windows**: `spuderman-windows-amd64.exe`
 - **Linux**: `spuderman-linux-amd64` or `spuderman-linux-arm64`
 
