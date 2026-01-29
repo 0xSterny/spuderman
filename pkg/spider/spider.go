@@ -118,14 +118,14 @@ func (s *Spider) Walk(target string) {
 
 		// Optimization: If no search terms, match immediately
 		if !hasNameTerm && !hasContentTerm {
-			s.handleMatch(path, "Extension/All", d)
+			s.handleMatch(path, "Extension/All")
 			return nil
 		}
 
 		// Check Filename Regex
 		if hasNameTerm {
 			if s.Matcher.CheckFilenameRegex(d.Name()) {
-				s.handleMatch(path, "Filename", d)
+				s.handleMatch(path, "Filename")
 				// Short-circuit: OR logic means if name matches, we are done.
 				return nil
 			}
@@ -162,7 +162,7 @@ func (s *Spider) Walk(target string) {
 					if snippet != "" {
 						reason = "Content: " + utils.Bold(snippet)
 					}
-					s.handleMatch(fPath, reason, fEntry)
+					s.handleMatch(fPath, reason)
 				}
 			}(path, d)
 		}
@@ -177,7 +177,7 @@ func (s *Spider) Walk(target string) {
 	wg.Wait()
 }
 
-func (s *Spider) handleMatch(path string, reason string, d fs.DirEntry) {
+func (s *Spider) handleMatch(path string, reason string) {
 	utils.LogSuccess("Match found (%s): %s", reason, path)
 	if !s.Config.NoDownload {
 		// download logic

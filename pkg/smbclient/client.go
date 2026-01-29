@@ -1,6 +1,7 @@
 package smbclient
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/hirochachacha/go-smb2"
@@ -11,11 +12,20 @@ type Session struct {
 	Conn    net.Conn
 }
 
-func NewSession(host, username, password, domain, hash, ccache, krbConfig string) (*Session, error) {
+func NewSession(host, username, password, domain, hash, ccache, krbConfig string) (s *Session, err error) {
 	conn, err := net.Dial("tcp", host+":445")
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic in SMB dial: %v", r)
+			if conn != nil {
+				conn.Close()
+			}
+		}
+	}()
 
 	initiator, err := GetInitiator(username, password, domain, hash, ccache, "", krbConfig)
 	if err != nil {
@@ -38,13 +48,13 @@ func NewSession(host, username, password, domain, hash, ccache, krbConfig string
 	// TODO: Verify Hash support in go-smb2 or use ntlmssp directly if needed.
 	// For now assuming User/Pass.
 
-	s, err := d.Dial(conn)
+	session, err := d.Dial(conn)
 	if err != nil {
 		conn.Close()
 		return nil, err
 	}
 
-	return &Session{Session: s, Conn: conn}, nil
+	return &Session{Session: session, Conn: conn}, nil
 }
 
 func (s *Session) ListShares() ([]string, error) {
