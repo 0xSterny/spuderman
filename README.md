@@ -1,15 +1,14 @@
 # Spuderman 🥔🕷️
 
-```text
+<div align="center">
+<pre>
  ____  ____  _   _ ____  _____ ____  __  __    _    _   _ 
 / ___||  _ \| | | |  _ \| ____|  _ \|  \/  |  / \  | \ | |
 \___ \| |_) | | | | | | |  _| | |_) | |\/| | / _ \ |  \| |
  ___) |  __/| |_| | |_| | |___|  _ <| |  | |/ ___ \| |\  |
 |____/|_|    \___/|____/|_____|_| \_\_|  |_/_/   \_\_| \_|
-```
-
-<div align="center">
-  <b>The potato-powered file spider and secret scanner.</b>
+</pre>
+  <b>The potatoes-powered file spider and secret scanner.</b>
 </div>
 
 ---
