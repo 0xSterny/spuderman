@@ -3,7 +3,7 @@
 <div align="center">
   <img src="https://user-images.githubusercontent.com/placeholder/spuderman-banner.png" alt="Spuderman Banner" width="600">
   <br>
-  <b>The potatoes-powered file spider and secret scanner.</b>
+  <b>The potato-powered file spider and secret scanner.</b>
 </div>
 
 ---
