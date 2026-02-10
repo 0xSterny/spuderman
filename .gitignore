@@ -1,0 +1,40 @@
+# Binaries
+spuderman.exe
+spuderman-linux
+spuderman-linux-amd64
+spuderman-windows-amd64.exe
+*.exe
+*.dll
+*.so
+*.dylib
+bin/
+final/
+
+# Sensitive / User Data
+kali_key
+kali_key.pub
+manticore_pkg_list.txt
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Logs and State
+spuderman.log
+*.json
+loot/
+scan_state.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Test
+*.test
+test_data/
+tests/
