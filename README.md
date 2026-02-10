@@ -8,7 +8,7 @@
  ___) |  __/| |_| | |_| | |___|  _ <| |  | |/ ___ \| |\  |
 |____/|_|    \___/|____/|_____|_| \_\_|  |_/_/   \_\_| \_|
 </pre>
-  <b>The potatoes-powered file spider and secret scanner.</b>
+  <b>The potato-powered file spider and secret scanner.</b>
 </div>
 
 ---
