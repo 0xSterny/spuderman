@@ -9,7 +9,7 @@
 ```
 
 <div align="center">
-  <b>The potatoes-powered file spider and secret scanner.</b>
+  <b>The potato-powered file spider and secret scanner.</b>
 </div>
 
 ---
