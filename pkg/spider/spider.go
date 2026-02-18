@@ -283,11 +283,26 @@ func (s *Spider) downloadFile(path string) (string, error) {
 		// Old flat behavior
 		// Sanitize path for local fs
 		// Let's try to keep directory structure if possible, but path separators might differ.
-		// Making it unique: Replace separators with _
-		safeName := strings.ReplaceAll(path, "\\", "_")
-		safeName = strings.ReplaceAll(safeName, "/", "_")
+		// Making it unique: Replace separators with spider emoji
+		safeName := strings.ReplaceAll(path, "\\", "🕷️")
+		safeName = strings.ReplaceAll(safeName, "/", "🕷️")
 		safeName = strings.ReplaceAll(safeName, ":", "")
-		destPath = filepath.Join(s.Config.LootDir, safeName)
+
+		// Prefix with Host and Share if available
+		safeHost := strings.ReplaceAll(s.Config.Host, ":", "")
+		safeShare := strings.ReplaceAll(s.Config.Share, "\\", "")
+		safeShare = strings.ReplaceAll(safeShare, "/", "")
+
+		// Desired format: Host🕷️Share🕷️Path
+		prefix := ""
+		if safeHost != "" {
+			prefix += safeHost + "🕷️"
+		}
+		if safeShare != "" {
+			prefix += safeShare + "🕷️"
+		}
+
+		destPath = filepath.Join(s.Config.LootDir, prefix+safeName)
 	}
 
 	// Create parent dirs
