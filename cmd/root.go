@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"sync/atomic"
 
 	"github.com/hirochachacha/go-smb2"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
 	"spuderman/pkg/matcher"
@@ -217,8 +217,9 @@ Targets can be:
 		var targetWG sync.WaitGroup
 		targetSem := make(chan struct{}, concurrentHosts)
 
-		var completedTargets int32
 		totalTargets := len(finalTargets)
+
+		bar := progressbar.Default(int64(totalTargets))
 
 		for _, target := range finalTargets {
 			targetWG.Add(1)
@@ -228,8 +229,7 @@ Targets can be:
 				defer targetWG.Done()
 				defer func() {
 					<-targetSem
-					curr := atomic.AddInt32(&completedTargets, 1)
-					utils.LogInfo("Progress: Hosts [%d/%d] - Finished %s", curr, totalTargets, tgt)
+					bar.Add(1)
 					if stateMgr != nil {
 						stateMgr.MarkCompleted(tgt)
 					}
