@@ -41,6 +41,10 @@ type Config struct {
 	Structured bool
 	Host       string
 	Share      string
+
+	// Delimiter used between Host/Share/Path segments in the flat loot filename.
+	// Must be filesystem-safe and shell-safe; defaults to "+" when unset.
+	Delimiter string
 }
 
 type DownloadJob struct {
@@ -121,6 +125,15 @@ func (s *Spider) Walk(target string) {
 		// Check exclusion first
 		if s.Matcher.CheckExclude(path) {
 			utils.LogDebug("Skipping excluded file (or dir): %s", path)
+			if d.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
+
+		// User-supplied blacklist (always applied, even with --no-exclude)
+		if s.Matcher.CheckBlacklist(path) {
+			utils.LogDebug("Skipping blacklisted file (or dir): %s", path)
 			if d.IsDir() {
 				return fs.SkipDir
 			}
@@ -280,12 +293,15 @@ func (s *Spider) downloadFile(path string) (string, error) {
 		// Path comes in as "foo/bar.txt".
 		destPath = filepath.Join(s.Config.LootDir, safeHost, safeShare, path)
 	} else {
-		// Old flat behavior
-		// Sanitize path for local fs
-		// Let's try to keep directory structure if possible, but path separators might differ.
-		// Making it unique: Replace separators with spider emoji
-		safeName := strings.ReplaceAll(path, "\\", "🕷️")
-		safeName = strings.ReplaceAll(safeName, "/", "🕷️")
+		// Old flat behavior: collapse path separators into a configurable delimiter
+		// so the full Host/Share/Path is preserved in a single filename.
+		delim := s.Config.Delimiter
+		if delim == "" {
+			delim = "+"
+		}
+
+		safeName := strings.ReplaceAll(path, "\\", delim)
+		safeName = strings.ReplaceAll(safeName, "/", delim)
 		safeName = strings.ReplaceAll(safeName, ":", "")
 
 		// Prefix with Host and Share if available
@@ -293,13 +309,13 @@ func (s *Spider) downloadFile(path string) (string, error) {
 		safeShare := strings.ReplaceAll(s.Config.Share, "\\", "")
 		safeShare = strings.ReplaceAll(safeShare, "/", "")
 
-		// Desired format: Host🕷️Share🕷️Path
+		// Desired format: Host<delim>Share<delim>Path
 		prefix := ""
 		if safeHost != "" {
-			prefix += safeHost + "🕷️"
+			prefix += safeHost + delim
 		}
 		if safeShare != "" {
-			prefix += safeShare + "🕷️"
+			prefix += safeShare + delim
 		}
 
 		destPath = filepath.Join(s.Config.LootDir, prefix+safeName)

@@ -59,14 +59,16 @@ Flags:
   -d, --domain string     SMB Domain
       --hash string       NTLM Hash (Format: LM:NT)
 
-  -c, --content string    Regex for content search
-  -f, --filename string   Regex for filename search
+  -c, --content string    Regex for content search (comma-separated for multiple)
+  -f, --filename string   Regex for filename search (comma-separated for multiple)
   -e, --ext string        Comma-separated extensions (e.g., txt,pdf,docx)
       --preset string     Secret presets (aws, azure, slack, google, keys, auth)
+  -b, --blacklist string  Comma-separated substrings to exclude from results (path match, case-insensitive)
 
   -o, --output string     Output file for results (JSON)
       --resume string     Resume state file (save/load progress)
       --loot string       Directory to download matched files (default "loot")
+  -x, --delimiter string  Delimiter between Host/Share/Path in flat loot filenames (default "+")
       --no-download       Only report matches, do not download
       --no-exclude        Disable default exclusions (node_modules, .git, etc.)
 
@@ -105,6 +107,18 @@ spuderman --resume progress.json -c "confidential" 192.168.1.0/24
 Save findings to a structured JSON file for processing:
 ```bash
 spuderman -o results.json --no-download 10.0.0.5
+```
+
+### 6. Multiple Keywords (Filename + Content)
+Search filenames AND file contents for any of several credential-related keywords. Both `-f` and `-c` accept comma-separated values:
+```bash
+spuderman -f "pwd,passw,admin,login,logon" -c "pwd,passw,admin,login,logon" 192.168.1.0/24
+```
+
+### 7. Blacklist
+Skip any file whose path contains one of the given substrings (case-insensitive). Useful for trimming noisy hits like browser caches or sample data:
+```bash
+spuderman -c "password" -b "node_modules,sample,test_data" /path/to/scan
 ```
 
 ## Presets

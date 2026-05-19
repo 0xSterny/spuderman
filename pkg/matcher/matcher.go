@@ -11,16 +11,18 @@ type MatchConfig struct {
 	Content    []string
 	Dirnames   []string
 	Presets    []string
+	Blacklist  []string
 	OrLogic    bool
 }
 
 type Matcher struct {
-	FilenameRegex []*regexp.Regexp
-	ContentRegex  []*regexp.Regexp
-	DirnameRegex  []*regexp.Regexp
-	ExcludeRegex  []*regexp.Regexp
-	Extensions    map[string]bool
-	Config        MatchConfig
+	FilenameRegex  []*regexp.Regexp
+	ContentRegex   []*regexp.Regexp
+	DirnameRegex   []*regexp.Regexp
+	ExcludeRegex   []*regexp.Regexp
+	BlacklistRegex []*regexp.Regexp
+	Extensions     map[string]bool
+	Config         MatchConfig
 }
 
 func NewMatcher(config MatchConfig) (*Matcher, error) {
@@ -68,6 +70,19 @@ func NewMatcher(config MatchConfig) (*Matcher, error) {
 			return nil, err
 		}
 		m.DirnameRegex = append(m.DirnameRegex, re)
+	}
+
+	// User-supplied blacklist: case-insensitive substring match against the file path.
+	for _, p := range config.Blacklist {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		re, err := regexp.Compile("(?i)" + regexp.QuoteMeta(p))
+		if err != nil {
+			return nil, err
+		}
+		m.BlacklistRegex = append(m.BlacklistRegex, re)
 	}
 
 	// Initialize Default Exclusions
@@ -157,6 +172,18 @@ func (m *Matcher) CheckContent(text string) (bool, string) {
 func (m *Matcher) CheckExclude(filename string) bool {
 	for _, re := range m.ExcludeRegex {
 		if re.MatchString(filename) {
+			return true
+		}
+	}
+	return false
+}
+
+// CheckBlacklist returns true if the path matches any user-supplied blacklist string.
+// Blacklist entries are treated as case-insensitive substrings (not regex), so a
+// match on "passw" will skip "Passwords.txt" or "/etc/old_passwd/backup".
+func (m *Matcher) CheckBlacklist(path string) bool {
+	for _, re := range m.BlacklistRegex {
+		if re.MatchString(path) {
 			return true
 		}
 	}

@@ -42,6 +42,7 @@ var (
 	maxDepth        int
 	analyze         bool
 	lootDir         string
+	lootDelimiter   string
 	noDownload      bool
 	structuredLoot  bool
 	verbose         bool
@@ -53,6 +54,7 @@ var (
 	// Phase 2
 	presets   []string
 	noExclude bool
+	blacklist []string
 
 	// Phase 3
 	resumeFile string
@@ -123,6 +125,7 @@ Targets can be:
 			Content:    content,
 			Dirnames:   dirnames,
 			Presets:    presets, // Load presets
+			Blacklist:  blacklist,
 			OrLogic:    true,
 		}
 		matchEngine, err := matcher.NewMatcher(mConfig)
@@ -144,6 +147,7 @@ Targets can be:
 			LootDir:    lootDir,
 			NoDownload: noDownload,
 			Structured: structuredLoot,
+			Delimiter:  lootDelimiter,
 		}
 
 		// Resume State
@@ -354,6 +358,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVarP(&maxDepth, "maxdepth", "m", 10, "Maximum depth to spider")
 	rootCmd.PersistentFlags().BoolVarP(&analyze, "analyze", "A", false, "Analyze mode: No download, Verbose output, Log to file")
 	rootCmd.PersistentFlags().StringVarP(&lootDir, "loot-dir", "l", ".spuderman/loot", "Loot directory")
+	rootCmd.PersistentFlags().StringVarP(&lootDelimiter, "delimiter", "x", "+", "Delimiter between Host/Share/Path in flat loot filenames (filesystem-safe single character recommended)")
 	rootCmd.PersistentFlags().BoolVarP(&structuredLoot, "structured", "S", false, "Use structured loot directory (Host/Share/File)")
 	rootCmd.PersistentFlags().BoolVarP(&noDownload, "no-download", "n", false, "Don't download matching files")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Show debugging messages")
@@ -362,6 +367,7 @@ func init() {
 	// Phase 2: UX
 	rootCmd.PersistentFlags().StringSliceVar(&presets, "preset", []string{}, "Load secret regex presets (e.g. aws, azure, slack, keys)")
 	rootCmd.PersistentFlags().BoolVar(&noExclude, "no-exclude", false, "Disable default exclusions")
+	rootCmd.PersistentFlags().StringSliceVarP(&blacklist, "blacklist", "b", []string{}, "Comma-separated substrings to exclude from results (matches against full path, case-insensitive)")
 
 	// Phase 3
 	rootCmd.PersistentFlags().StringVar(&resumeFile, "resume", "", "Resume state file (JSON)")
