@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"errors"
 
 	"spuderman/pkg/extractor"
 	"spuderman/pkg/matcher"
@@ -112,7 +113,7 @@ func (s *Spider) Walk(target string) {
 
 	err := s.FS.WalkDir(target, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			utils.LogWarning("Error accessing %s: %v", path, err)
+			utils.LogWarning("Error accessing //%s/%s/%s: %v", s.Config.Host, s.Config.Share, path, errors.Unwrap(err))
 			return nil // Continue walking
 		}
 
@@ -133,7 +134,7 @@ func (s *Spider) Walk(target string) {
 
 		// User-supplied blacklist (always applied, even with --no-exclude)
 		if s.Matcher.CheckBlacklist(path) {
-			utils.LogDebug("Skipping blacklisted file (or dir): %s", path)
+			utils.LogDebug("Skipping blacklisted file (or dir): //%s/%s/%s", s.Config.Host, s.Config.Share, path)
 			if d.IsDir() {
 				return fs.SkipDir
 			}
@@ -246,7 +247,7 @@ func (s *Spider) downloadWorker() {
 }
 
 func (s *Spider) handleMatch(path string, reason string) {
-	utils.LogSuccess("Match found (%s): %s", reason, path)
+	utils.LogSuccess("Match found (%s): //%s/%s/%s", reason, s.Config.Host, s.Config.Share, path)
 
 	if !s.Config.NoDownload {
 		// Queue for async download
@@ -275,7 +276,7 @@ func (s *Spider) downloadFile(path string) (string, error) {
 	// Open source
 	src, err := s.FS.Open(path)
 	if err != nil {
-		utils.LogError("Failed to open file for download %s: %v", path, err)
+		utils.LogError("Failed to open file for download //%s/%s/%s: %v", s.Config.Host, s.Config.Share, path, err)
 		return "", err
 	}
 	defer src.Close()
