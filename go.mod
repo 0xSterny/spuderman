@@ -1,4 +1,4 @@
-module spuderman
+module github.com/0xSterny/spuderman
 
 go 1.24.5
 

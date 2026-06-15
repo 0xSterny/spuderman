@@ -11,9 +11,9 @@ import (
 	"sync"
 	"errors"
 
-	"spuderman/pkg/extractor"
-	"spuderman/pkg/matcher"
-	"spuderman/pkg/utils"
+	"github.com/0xSterny/spuderman/pkg/extractor"
+	"github.com/0xSterny/spuderman/pkg/matcher"
+	"github.com/0xSterny/spuderman/pkg/utils"
 )
 
 type FileSystem interface {

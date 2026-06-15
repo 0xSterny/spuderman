@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"spuderman/pkg/matcher"
-	"spuderman/pkg/spider"
-	"spuderman/pkg/utils"
+	"github.com/0xSterny/spuderman/pkg/matcher"
+	"github.com/0xSterny/spuderman/pkg/spider"
+	"github.com/0xSterny/spuderman/pkg/utils"
 )
 
 func TestSpiderLocal(t *testing.T) {

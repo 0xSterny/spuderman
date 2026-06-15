@@ -12,11 +12,11 @@ import (
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
-	"spuderman/pkg/matcher"
-	"spuderman/pkg/smbclient"
-	"spuderman/pkg/spider"
-	"spuderman/pkg/state"
-	"spuderman/pkg/utils"
+	"github.com/0xSterny/spuderman/pkg/matcher"
+	"github.com/0xSterny/spuderman/pkg/smbclient"
+	"github.com/0xSterny/spuderman/pkg/spider"
+	"github.com/0xSterny/spuderman/pkg/state"
+	"github.com/0xSterny/spuderman/pkg/utils"
 )
 
 var (

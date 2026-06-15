@@ -33,6 +33,15 @@ Spuderman is a high-performance, memory-safe file spider and content search tool
 
 ## Installation
 
+### Go Install
+Install the latest version directly with Go (requires Go 1.21+):
+
+```bash
+go install github.com/0xSterny/spuderman@latest
+```
+
+This places the `spuderman` binary in `$(go env GOPATH)/bin`. Make sure that directory is on your `PATH`.
+
 ### Binary Release
 Download the latest binary from the [Releases Page](https://github.com/0xSterny/spuderman/releases).
 

@@ -3,7 +3,7 @@ package state
 import (
 	"encoding/json"
 	"os"
-	"spuderman/pkg/utils"
+	"github.com/0xSterny/spuderman/pkg/utils"
 	"sync"
 )
 
