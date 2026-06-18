@@ -29,6 +29,8 @@ Spuderman is a high-performance, memory-safe file spider and content search tool
 -   **Resumable Scans**: Save state and resume interrupted scans (`--resume`).
 -   **Async Downloads**: Downloads matched files in the background without blocking the scan.
 -   **Output Formats**: Console (Human-readable) and JSON (`--output`).
+-   **Live Progress Bar**: A progress bar stays pinned to the bottom of the terminal while log output scrolls above it.
+-   **Silent Mode**: `--silent` suppresses everything except matches and downloads — the positive hits.
 -   **Memory Safe**: Limits file read sizes to prevent OOM on large files.
 
 ## Installation
@@ -58,32 +60,39 @@ go build .
 
 ```txt
 Usage:
-  spuderman [flags] <target>
+  spuderman [targets] [flags]
+
+Targets can be a single IP/Hostname, a CIDR range, a file of targets
+(one per line), or a local directory.
 
 Flags:
-  -H, --host string       SMB Host IP/Hostname
-  -S, --share string      SMB Share Name
-  -u, --user string       SMB Username
-  -p, --pass string       SMB Password
-  -d, --domain string     SMB Domain
-      --hash string       NTLM Hash (Format: LM:NT)
-
-  -c, --content string    Regex for content search (comma-separated for multiple)
-  -f, --filename string   Regex for filename search (comma-separated for multiple)
-  -e, --ext string        Comma-separated extensions (e.g., txt,pdf,docx)
-      --preset string     Secret presets (aws, azure, slack, google, keys, auth)
-  -b, --blacklist string  Comma-separated substrings to exclude from results (path match, case-insensitive)
-
-  -o, --output string     Output file for results (JSON)
-      --resume string     Resume state file (save/load progress)
-      --loot string       Directory to download matched files (default "loot")
-  -x, --delimiter string  Delimiter between Host/Share/Path in flat loot filenames (default "+")
-      --no-download       Only report matches, do not download
-      --no-exclude        Disable default exclusions (node_modules, .git, etc.)
-
-  -t, --threads int       Number of concurrent threads (default 4)
-  -v, --verbose           Enable verbose logging
-      --debug             Enable debug logging
+  -A, --analyze              Analyze mode: No download, Verbose output, Log to file
+  -b, --blacklist strings    Comma-separated substrings to exclude from results (path match, case-insensitive)
+      --ccache string        Kerberos CCache file path
+  -c, --content strings      Search for file content using regex
+  -x, --delimiter string     Delimiter between Host/Share/Path in flat loot filenames (default "+")
+      --dirnames strings     Only search directories containing these strings
+  -d, --domain string        Domain for authentication
+  -e, --extensions strings   Only show filenames with these extensions
+  -f, --filenames strings    Filter filenames using regex
+  -H, --hash string          NTLM hash for authentication
+      --krb5-conf string     Kerberos config file path (krb5.conf)
+  -l, --loot-dir string      Loot directory (default ".spuderman/loot")
+  -m, --maxdepth int         Maximum depth to spider (default 10)
+  -n, --no-download          Don't download matching files
+      --no-exclude           Disable default exclusions
+      --no-pass              Do not use a password (force empty)
+  -o, --output string        Output file for results (JSON)
+  -P, --parallel int         Max concurrent hosts (default 5)
+  -p, --password string      Password for authentication
+      --preset strings       Load secret regex presets (e.g. aws, azure, slack, keys)
+      --resume string        Resume state file (JSON)
+      --sharenames strings   Only search shares with these names
+      --silent               Only show matches and downloads (suppress all other console output and the progress bar)
+  -S, --structured           Use structured loot directory (Host/Share/File)
+  -t, --threads int          Concurrent threads (PER HOST) (default 5)
+  -u, --username string      Username for authentication
+  -v, --verbose              Show debugging messages
 ```
 
 ## Examples
@@ -101,9 +110,9 @@ spuderman --preset aws,keys /path/to/source
 ```
 
 ### 3. SMB Share Scanning
-Scan an SMB share for PDF files:
+Scan a specific SMB share for PDF files (the target is positional):
 ```bash
-spuderman -H 192.168.1.10 -S C$ -u admin -p password -e pdf
+spuderman -u admin -p password --sharenames C$ -e pdf 192.168.1.10
 ```
 
 ### 4. Resume Scan

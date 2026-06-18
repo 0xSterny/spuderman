@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/hirochachacha/go-smb2"
-	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 
 	"github.com/0xSterny/spuderman/pkg/matcher"
@@ -47,6 +46,7 @@ var (
 	structuredLoot  bool
 	verbose         bool
 	noPass          bool
+	silent          bool
 
 	// Reporting
 	outputFile string
@@ -84,7 +84,12 @@ Targets can be:
 		}
 		defer utils.CloseLogger()
 
-		utils.PrintBanner() // Added Banner
+		// Silent mode: only matches and downloads are shown on the console.
+		utils.Silent = silent
+
+		if !silent {
+			utils.PrintBanner() // Added Banner
+		}
 		utils.LogInfo("Spuderman starting...")
 
 		if analyze {
@@ -223,7 +228,11 @@ Targets can be:
 
 		totalTargets := len(finalTargets)
 
-		bar := progressbar.Default(int64(totalTargets))
+		// Progress bar stays pinned at the bottom of the terminal; all log
+		// output is rendered above it (see utils.printAboveBar). Disabled in
+		// silent mode.
+		utils.StartProgress(totalTargets)
+		defer utils.FinishProgress()
 
 		for _, target := range finalTargets {
 			targetWG.Add(1)
@@ -233,7 +242,7 @@ Targets can be:
 				defer targetWG.Done()
 				defer func() {
 					<-targetSem
-					bar.Add(1)
+					utils.AdvanceProgress()
 					if stateMgr != nil {
 						stateMgr.MarkCompleted(tgt)
 					}
@@ -362,6 +371,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&structuredLoot, "structured", "S", false, "Use structured loot directory (Host/Share/File)")
 	rootCmd.PersistentFlags().BoolVarP(&noDownload, "no-download", "n", false, "Don't download matching files")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Show debugging messages")
+	rootCmd.PersistentFlags().BoolVar(&silent, "silent", false, "Only show matches and downloads (suppress all other console output and the progress bar)")
 	rootCmd.PersistentFlags().StringVarP(&outputFile, "output", "o", "", "Output file for results (JSON)")
 
 	// Phase 2: UX
