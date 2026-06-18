@@ -1,0 +1,24 @@
+# Normalize line endings: store text as LF in the repo and check out as LF
+# on every platform. Prevents CRLF/LF churn from mixed dev environments.
+* text=auto eol=lf
+
+# Explicit rules for the file types in this repo
+*.go   text eol=lf
+go.mod text eol=lf
+go.sum text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sh   text eol=lf
+
+# Treat compiled binaries / archives as binary (no normalization)
+*.exe binary
+*.dll binary
+*.so  binary
+*.dylib binary
+*.gz  binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.pdf binary
