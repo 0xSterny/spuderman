@@ -24,8 +24,9 @@ var (
 
 	logFile *os.File
 
-	// Silent suppresses all console output except matches and downloads
-	// (the positive hits). Everything is still written to the log file.
+	// Silent suppresses log lines on the console, leaving only matches and
+	// downloads (the positive hits) and the progress bar. Everything is still
+	// written to the log file.
 	Silent bool
 
 	// progressBar, when set, is kept pinned at the bottom of the terminal.
@@ -38,11 +39,9 @@ var (
 
 // StartProgress creates a progress bar pinned to the bottom of the terminal and
 // registers it so log output is rendered above it. Pass the total number of
-// units of work. It is a no-op in silent mode.
+// units of work. The bar is shown in silent mode too — silent mode only
+// suppresses log lines, not the progress bar or positive hits.
 func StartProgress(total int) {
-	if Silent {
-		return
-	}
 	progressMu.Lock()
 	defer progressMu.Unlock()
 	progressBar = progressbar.NewOptions(total,
