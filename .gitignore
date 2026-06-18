@@ -1,7 +1,10 @@
 # Binaries
+spuderman
 spuderman.exe
 spuderman-linux
 spuderman-linux-amd64
+spuderman-darwin-amd64
+spuderman-darwin-arm64
 spuderman-windows-amd64.exe
 *.exe
 *.dll
